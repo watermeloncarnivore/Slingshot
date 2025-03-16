@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- --------- UNICONS ---------- -->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+
+    <!-- --------- CSS ---------- -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- --------- FAVICON ---------- -->
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+
+    <title>Westwood Slingshot</title>
+
+    <!-- Three.js and related libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    
+    <!-- Custom 3D styles -->
+    <style>
+        .canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            opacity: 0.7;
+        }
+        
+        .featured-box {
+            position: relative;
+            z-index: 1;
+        }
+
+        .grid-overlay {
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Fix any potential overflow from the featured box gradient */
+        .featured-box::before {
+            width: 100%;
+            left: 0;
+        }
+
+        /* Ensure the canvas container doesn't cause overflow */
+        .canvas-container {
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        /* Ensure grid overlay doesn't cause overflow */
+        .grid-overlay {
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        .model-container {
+            width: 500px;
+            height: 500px;
+            position: relative;
+            background: transparent;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .model-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        #robot-model-container canvas {
+            border-radius: 10px;
+        }
+
+        .sketchfab-embed-wrapper {
+            width: 100%;
+            height: 100%;
+        }
+
+        .sketchfab-embed-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Remove the attribution text since it's your own model */
+        .sketchfab-embed-wrapper p {
+            display: none;
+        }
+
+        model-viewer {
+            --model-color: #8000ff; /* Purple color for wireframe */
+        }
+
+        /* Loading spinner styles */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(128, 0, 255, 0.2);
+            border-top: 3px solid #8000ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <!-- Add Source Code Pro font -->
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Source Code Pro', monospace;
+        }
+        
+        body {
+            background-color: #0a0a0a;
+        }
+
+        .section {
+            padding: 3rem 2rem;
+            max-width: 1200px;
+            margin: 1rem auto;
+            background: rgba(20, 20, 20, 0.85) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(128, 0, 255, 0.1);
+            border-radius: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .nav-menu {
+            background: none !important;
+            backdrop-filter: none !important;
+        }
+
+        .nav_menu_list {
+            background: none !important;
+        }
+
+        .nav_list {
+            background: none !important;
+        }
+
+        .nav-link {
+            background: none !important;
+            color: white;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #8000ff;
+        }
+
+        .active-link {
+            color: #8000ff;
+        }
+
+        .featured-text-card span {
+            background: linear-gradient(45deg, #8000ff, #cc00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #8000ff, #cc00ff);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(45deg, #8000ff33, #cc00ff33);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover::after {
+            transform: translateX(0);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-image {
+            height: 40px; /* Adjust this value to match your desired logo size */
+            width: auto;
+            object-fit: contain;
+        }
+
+        .featured-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -50%;
+            width: 200%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 50% 30%, rgba(128, 0, 255, 0.15) 0%, transparent 70%),
+                radial-gradient(circle at 50% 70%, rgba(204, 0, 255, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .skills-box {
+            margin-bottom: 2rem;
+            width: 100%;
+            overflow: visible;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 1rem;
+        }
+
+        .skills-list span {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        /* Grid overlay */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(128, 0, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(128, 0, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.3;
+        }
+
+        /* Improve project box sizing */
+        .project-box {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .project-box img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Make sure header is above everything */
+        #header {
+            position: relative;
+            z-index: 3;
+        }
+    </style>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+</head>
+<body>
+    <div class="canvas-container" id="background-canvas"></div>
+    <div class="grid-overlay"></div>
+    <div class="container">
+    <!-- --------------- HEADER --------------- -->
+      <nav id="header">
+        <div class="nav-logo">
+            <img src="images/slinglogo.png" alt="Slingshot Logo" class="logo-image">
+        </div>
+        <div class="nav-menu" id="myNavMenu">
+            <ul class="nav_menu_list">
+                <li class="nav_list">
+                    <a href="#home" class="nav-link active-link">Home</a>
+                </li>
+                <li class="nav_list">
+                    <a href="#about" class="nav-link">About Us</a>
+                </li>
+                <li class="nav_list">
+                    <a href="#projects" class="nav-link">Resources</a>
+                </li>
+                <li class="nav_list">
+                    <a href="#contact" class="nav-link">Contact</a>
+                </li>
+            </ul>
+        </div>
+        <div class="nav-button">
+        </div>
+        <div class="nav-menu-btn">
+            <i class="uil uil-bars" onclick="myMenuFunction()"></i>
+        </div>
+      </nav>
+    
+      <!-- -------------- POP UP ---------------- -->
+      
+    <!-- -------------- MAIN ---------------- -->
+    <main class="wrapper">
+       <!-- -------------- FEATURED BOX ---------------- -->
+       <section class="featured-box" id="home">
+          <div class="featured-text">
+            <div class="featured-name">
+                <p>We are <span class="typedText"></span></p>
+            </div>
+            <div class="featured-text-info">
+                <p>A team that has a passion for robotics.</p>
+            </div>
+            <div class="featured-text-btn">
+                <button class="btn blue-btn">20240</button>
+            </div>
+          </div>
+          <div class="model-container">
+            <model-viewer
+                src="models/OneSidePod.gltf"
+                camera-controls
+                auto-rotate
+                shadow-intensity="1"
+                exposure="1"
+                environment-image="neutral"
+                auto-rotate-delay="0"
+                rotation-per-second="30deg"
+                interaction-prompt="none"
+                orientation="270deg 270deg -90deg"
+                variant-name="wireframe"
+                style="width: 100%; height: 100%; background-color: transparent;">
+                
+                
+                <!-- Loading animation -->
+                <div class="loading" slot="loading">
+                    <div class="spinner"></div>
+                </div>
+            </model-viewer>
+          </div>
+       </section>
+       <!-- -------------- ABOUT BOX ---------------- -->
+       <section class="section" id="about">
+          <div class="top-header">
+            <h1>About Us</h1>
+          </div>
+          <div class="row">
+            <div class="col">
+                <div class="about-info">
+                    <h3>About Us</h3>
+                    <p>
+                        Welcome to Westwood Slingshot! We are a First Tech Challenge team from Austin, TX, starting our journey in 2021. Led by our co-captains, Souren Uchat and Arhaan Jafri, we are passionate about robotics and STEM. Our team works together to build robots, solve problems, and have fun while learning. We aim to inspire others and make a difference in the world of technology. Join us as we explore the exciting world of robotics!
+                    </p>
+                    <div class="about-btn">
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="skills-box">
+                    <div class="skills-header">
+                        <h3>CAD</h3>
+                    </div>
+                    <div class="skills-list">
+                        <span>Souren</span>
+                        <span>Ohm</span>
+                        <span>Jining</span>
+                        <span>Haoxin</span>
+                        <span>Arhaan</span>
+                        <span>Scott</span>
+                    </div>
+                </div>
+                <div class="skills-box">
+                    <div class="skills-header">
+                        <h3>Software</h3>
+                    </div>
+                    <div class="skills-list">
+                        <span>Jihoon</span>
+                        <span>Yonnie</span>
+                        <span>Rupal</span>
+                        <span>Ali</span>
+                        <span>Aubrey</span>
+                        <span>James</span>
+                    </div>
+                </div>
+                <div class="skills-box">
+                    <div class="skills-header">
+                        <h3>Outreach/Misc</h3>
+                    </div>
+                    <div class="skills-list">
+                        <span>Jining</span>
+                        <span>James</span>
+                    </div>
+                </div>
+            </div>
+          </div>
+       </section>
+
+       <!-- -------------- OPEN SOURCE BOX ---------------- -->
+
+       <section class="section" id="projects" style="padding: 2rem 0;">
+        <div class="top-header">
+            <h1>Into The Deep Scorer</h1>
+        </div>
+        <div class="project-container" style="max-width: 600px; margin: 0 auto;">
+            <div class="project-box" onclick="window.location.href='https://ftcscoring.app/';">
+                <img src="images/ftcscoringappLOGO.png" alt="Error" class="featured-image">
+                <label>Click to access</label>
+            </div>
+        </div>
+    </section>
+    
+    
+
+       <!-- -------------- CONTACT BOX ---------------- -->
+
+       <section class="section" id="contact">
+        <div class="top-header">
+            <h1>Get in touch</h1>
+            <span>Looking for business inquiries or want to reach out to us?</span>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="contact-info">
+                    <h2>Find Us <i class="uil uil-corner-right-down"></i></h2>
+                    <p><i class="uil uil-envelope"></i> Email: info@slingshot20240.com</p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-control">
+                    <form id="contactForm">
+                        <div class="form-inputs">
+                            <input type="text" id="name" name="name" class="input-field" placeholder="Name" required>
+                            <input type="email" id="email" name="email" class="input-field" placeholder="Email" required>
+                        </div>
+                        <div class="text-area">
+                            <textarea id="message" name="message" placeholder="Message" required></textarea>
+                        </div>
+                        <div class="form-button">
+                            <button type="submit" class="btn">Send <i class="uil uil-message"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+            
+            // Fetch form data
+            let formData = new FormData(this);
+            
+            // Send form data to server using fetch API
+            fetch('/submit-form', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data); // Log server response
+                alert('Message sent successfully!'); // Show success message
+                this.reset(); // Reset form after successful submission
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Something went wrong. Please try again.'); // Show error message
+            });
+        });
+    </script>
+
+    <!-- ----- TYPING JS Link ----- -->
+    <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
+
+    <!-- ----- SCROLL REVEAL JS Link----- -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+
+    <!-- ----- MAIN JS ----- -->
+    <script src="script.js"></script>
+
+    <!-- Three.js background -->
+    <script src="three-background.js"></script>
+    <script>
+        // Initialize particle system
+        const particles = new ParticleSystem();
+        
+        // Add scroll-based camera movement
+        window.addEventListener('scroll', () => {
+            const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            particles.scene.rotation.y = scrollPercent * Math.PI * 2;
+            particles.camera.position.z = 15 + scrollPercent * 5;
+        });
+    </script>
+
+    <!-- Add this right after the body tag -->
+    <div class="grid-overlay"></div>
+
+    <!-- Add this before closing body tag -->
+    <footer style="text-align: center; padding: 2rem 0; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
+        © 2025 Slingshot • All rights reserved.
+    </footer>
+
+    <!-- Three.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Your rain effect -->
+    <script src="three-background.js"></script>
+    
+    <!-- Initialize the rain -->
+    <script>
+        const rain = new PurpleRain();
+        
+        // Add scroll-based effects
+        window.addEventListener('scroll', () => {
+            const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            rain.camera.position.y = -scrollPercent * 50;
+        });
+    </script>
+
+    <!-- Your robot viewer -->
+    <script src="robot-viewer.js"></script>
+    <script>
+        const robotViewer = new RobotViewer();
+    </script>
+</body>
+</html>
+

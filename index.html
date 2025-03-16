@@ -3,25 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- --------- UNICONS ---------- -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
-
-    <!-- --------- CSS ---------- -->
     <link rel="stylesheet" href="style.css">
-
-    <!-- --------- FAVICON ---------- -->
-    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
-
-    <title>Westwood Slingshot</title>
-
-    <!-- Three.js and related libraries -->
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+    <title>Slingshot 20240</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    
-    <!-- Custom 3D styles -->
     <style>
         .canvas-container {
             position: fixed;
@@ -59,19 +48,16 @@
             overflow-x: hidden;
         }
 
-        /* Fix any potential overflow from the featured box gradient */
         .featured-box::before {
             width: 100%;
             left: 0;
         }
 
-        /* Ensure the canvas container doesn't cause overflow */
         .canvas-container {
             width: 100vw;
             overflow: hidden;
         }
 
-        /* Ensure grid overlay doesn't cause overflow */
         .grid-overlay {
             width: 100vw;
             overflow: hidden;
@@ -107,16 +93,14 @@
             border: none;
         }
 
-        /* Remove the attribution text since it's your own model */
         .sketchfab-embed-wrapper p {
             display: none;
         }
 
         model-viewer {
-            --model-color: #8000ff; /* Purple color for wireframe */
+            --model-color: #8000ff;
         }
 
-        /* Loading spinner styles */
         .loading {
             display: flex;
             justify-content: center;
@@ -138,10 +122,7 @@
             100% { transform: rotate(360deg); }
         }
     </style>
-
-    <!-- Add Source Code Pro font -->
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <style>
         * {
             font-family: 'Source Code Pro', monospace;
@@ -225,7 +206,7 @@
         }
         
         .logo-image {
-            height: 40px; /* Adjust this value to match your desired logo size */
+            height: 40px;
             width: auto;
             object-fit: contain;
         }
@@ -261,7 +242,6 @@
             white-space: nowrap;
         }
 
-        /* Grid overlay */
         .grid-overlay {
             position: fixed;
             top: 0;
@@ -277,7 +257,6 @@
             opacity: 0.3;
         }
 
-        /* Improve project box sizing */
         .project-box {
             max-width: 400px;
             margin: 0 auto;
@@ -289,7 +268,6 @@
             height: auto;
         }
 
-        /* Make sure header is above everything */
         #header {
             position: relative;
             z-index: 3;
@@ -301,7 +279,6 @@
     <div class="canvas-container" id="background-canvas"></div>
     <div class="grid-overlay"></div>
     <div class="container">
-    <!-- --------------- HEADER --------------- -->
       <nav id="header">
         <div class="nav-logo">
             <img src="images/slinglogo.png" alt="Slingshot Logo" class="logo-image">
@@ -329,11 +306,7 @@
         </div>
       </nav>
     
-      <!-- -------------- POP UP ---------------- -->
-      
-    <!-- -------------- MAIN ---------------- -->
     <main class="wrapper">
-       <!-- -------------- FEATURED BOX ---------------- -->
        <section class="featured-box" id="home">
           <div class="featured-text">
             <div class="featured-name">
@@ -360,16 +333,12 @@
                 orientation="270deg 270deg -90deg"
                 variant-name="wireframe"
                 style="width: 100%; height: 100%; background-color: transparent;">
-                
-                
-                <!-- Loading animation -->
                 <div class="loading" slot="loading">
                     <div class="spinner"></div>
                 </div>
             </model-viewer>
           </div>
        </section>
-       <!-- -------------- ABOUT BOX ---------------- -->
        <section class="section" id="about">
           <div class="top-header">
             <h1>About Us</h1>
@@ -388,7 +357,7 @@
             <div class="col">
                 <div class="skills-box">
                     <div class="skills-header">
-                        <h3>CAD</h3>
+                        <h3>CAD/Hardware</h3>
                     </div>
                     <div class="skills-list">
                         <span>Souren</span>
@@ -397,6 +366,8 @@
                         <span>Haoxin</span>
                         <span>Arhaan</span>
                         <span>Scott</span>
+                        <span>Viktor</span>
+                        <span>Ilia</span>
                     </div>
                 </div>
                 <div class="skills-box">
@@ -425,8 +396,6 @@
           </div>
        </section>
 
-       <!-- -------------- OPEN SOURCE BOX ---------------- -->
-
        <section class="section" id="projects" style="padding: 2rem 0;">
         <div class="top-header">
             <h1>Into The Deep Scorer</h1>
@@ -438,10 +407,6 @@
             </div>
         </div>
     </section>
-    
-    
-
-       <!-- -------------- CONTACT BOX ---------------- -->
 
        <section class="section" id="contact">
         <div class="top-header">
@@ -476,82 +441,53 @@
     
     <script>
         document.getElementById('contactForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission
-            
-            // Fetch form data
+            event.preventDefault();
             let formData = new FormData(this);
-            
-            // Send form data to server using fetch API
             fetch('/submit-form', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.text())
             .then(data => {
-                console.log(data); // Log server response
-                alert('Message sent successfully!'); // Show success message
-                this.reset(); // Reset form after successful submission
+                console.log(data);
+                alert('Message sent successfully!');
+                this.reset();
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Something went wrong. Please try again.'); // Show error message
+                alert('Something went wrong. Please try again.');
             });
         });
     </script>
 
-    <!-- ----- TYPING JS Link ----- -->
     <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
-
-    <!-- ----- SCROLL REVEAL JS Link----- -->
     <script src="https://unpkg.com/scrollreveal"></script>
-
-    <!-- ----- MAIN JS ----- -->
     <script src="script.js"></script>
-
-    <!-- Three.js background -->
     <script src="three-background.js"></script>
     <script>
-        // Initialize particle system
         const particles = new ParticleSystem();
-        
-        // Add scroll-based camera movement
         window.addEventListener('scroll', () => {
             const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
             particles.scene.rotation.y = scrollPercent * Math.PI * 2;
             particles.camera.position.z = 15 + scrollPercent * 5;
         });
     </script>
-
-    <!-- Add this right after the body tag -->
     <div class="grid-overlay"></div>
-
-    <!-- Add this before closing body tag -->
     <footer style="text-align: center; padding: 2rem 0; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
         © 2025 Slingshot • All rights reserved.
     </footer>
-
-    <!-- Three.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
-    <!-- Your rain effect -->
     <script src="three-background.js"></script>
-    
-    <!-- Initialize the rain -->
     <script>
         const rain = new PurpleRain();
-        
-        // Add scroll-based effects
         window.addEventListener('scroll', () => {
             const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
             rain.camera.position.y = -scrollPercent * 50;
         });
     </script>
-
-    <!-- Your robot viewer -->
     <script src="robot-viewer.js"></script>
     <script>
         const robotViewer = new RobotViewer();
     </script>
 </body>
 </html>
-

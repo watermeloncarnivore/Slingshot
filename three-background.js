@@ -13,7 +13,6 @@ class PurpleRain {
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.container.appendChild(this.renderer.domElement);
 
-        // Create raindrop geometry
         const rainGeo = new THREE.BufferGeometry();
         const rainCount = 15000;
         const posArray = new Float32Array(rainCount * 3);
@@ -40,11 +39,10 @@ class PurpleRain {
         this.rain = new THREE.Points(rainGeo, rainMaterial);
         this.scene.add(this.rain);
 
-        // Add ambient light
         const ambientLight = new THREE.AmbientLight(0x9933ff, 0.5);
         this.scene.add(ambientLight);
 
-        // Position camera
+
         this.camera.position.z = 100;
 
         this.animate();
